@@ -1,0 +1,19 @@
+/* 
+  Localizable.strings
+  CurrencyConverter
+
+  Created by Елена Русских on 2024-03-15.
+  
+*/
+// MARK: Main View
+"main_view_currency_balances_label_title" = "Currency balances";
+"main_view_convert_button_title" = "Convert";
+"main_view_commision_fee_message" = "You have converted %f %@ to %f %@. Commission Fee - %f %@.";
+
+// MARK: Currency
+"eur" = "EUR";
+"usd" = "USD";
+"jpy" = "JPY";
+
+// MARK: Shared
+"ok" = "OK";

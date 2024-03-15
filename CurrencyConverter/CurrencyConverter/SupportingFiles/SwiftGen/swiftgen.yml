@@ -1,0 +1,29 @@
+input_dir: ${PROJECT_DIR}/CurrencyConverter
+output_dir: ${PROJECT_DIR}/CurrencyConverter/SupportingFiles/SwiftGen/Generated
+# Assets
+xcassets:
+  - inputs:
+      - Resources/Assets.xcassets
+    outputs:
+      - templateName: swift5
+        params:
+          forceProvidesNamespaces: true
+          enumName: SharedAssets
+        output: SharedAssets.swift
+  - inputs:
+      - Resources/Colors.xcassets
+    outputs:
+      - templateName: swift4
+        params:
+          forceProvidesNamespaces: true
+          enumName: SharedColors
+        output: SharedColors.swift
+#Strings
+strings:
+  inputs:
+    - Resources/Localizable/en.lproj
+  outputs:
+    - templateName: structured-swift5
+      params:
+        enumName: LocalizedString
+      output: Strings.swift
