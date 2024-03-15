@@ -8,29 +8,91 @@
 import XCTest
 @testable import CurrencyConverter
 
-final class CurrencyConverterTests: XCTestCase {
-
+final class MainViewModelTests: XCTestCase {
+    
+    // MARK: - Properties
+    var sut: MainViewModel!
+    var networkManagerMock: NetworkServiceMock!
+    var userDefaultsManagerMock: UserDefaultsServiceMock!
+  
+    // MARK: - Lifecycle
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        super.setUp()
+        
+        let networkManager = NetworkServiceMock()
+        networkManagerMock = networkManager
+        let userDefaultsManager = UserDefaultsServiceMock()
+        userDefaultsManagerMock = userDefaultsManager
+        
+        sut = MainViewModel(
+            networkService: networkManagerMock,
+            userDefaultsService: userDefaultsManager
+        )
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        sut = nil
+        networkManagerMock = nil
+        
+        super.tearDown()
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    // MARK: makeConvertation
+    func testMainViewModel_makeConvertation_methodConvertIsCalled() {
+        sut.makeConvertation(fromAmount: TestData.amount, fromCurrency: TestData.fromCurrency, toCurrency: TestData.toCurrency)
+        
+        XCTAssertTrue(networkManagerMock.convertIsCalled, "Expected method convert() in networService to be called")
+    }
+    
+    func testMainViewModel_makeConvertation_methodConvertIsCalledWithRightParameters() {
+        sut.makeConvertation(fromAmount: TestData.amount, fromCurrency: TestData.fromCurrency, toCurrency: TestData.toCurrency)
+        
+        XCTAssertEqual(networkManagerMock.lastReceivedFromAmount, TestData.amount, "Expected networkService to receive correct 'amount' from the viewModel")
+        XCTAssertEqual(networkManagerMock.lastReceivedFromCurrency, TestData.fromCurrency, "Expected networkService to receive correct 'fromCurrency' from the viewModel")
+        XCTAssertEqual(networkManagerMock.lastReceivedToCurrency, TestData.toCurrency, "Expected networkService to receive correct 'toCurrency' from the viewModel")
+    }
+    
+    // MARK: isComission
+    func testMainViewModel_isComission_lessThen5_shouldReturnFalse() {
+        
+        userDefaultsManagerMock.lastCountCurrencyConvertetion = TestData.countOfFreeConvertation
+        
+        let isFreeConvertation = sut.isComission()
+        
+        XCTAssertFalse(isFreeConvertation, "Expected convertation should be free of commission")
+        
+    }
+    
+    func testMainViewModel_isComission_greaterThen5_shouldReturnTrue() {
+        
+        userDefaultsManagerMock.lastCountCurrencyConvertetion = TestData.countOFPaidConvertation
+        
+        let isFreeConvertation = sut.isComission()
+        
+        XCTAssertTrue(isFreeConvertation, "Expected convertation should be charged with commission")
+        
+    }
+    
+    func testMainViewModel_isComission_nil_shouldReturnFalse() {
+        
+        userDefaultsManagerMock.lastCountCurrencyConvertetion = TestData.countOfNilConvertation
+        
+        let isFreeConvertation = sut.isComission()
+        
+        XCTAssertFalse(isFreeConvertation, "Expected convertation should be free of commission")
+        
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
+}
 
+// MARK: - TestData
+private extension MainViewModelTests {
+    enum TestData {
+        static let amount: Double = 112.03
+        static let fromCurrency: Currency = .EUR
+        static let toCurrency: Currency = .USD
+        static let countOfFreeConvertation: Int = 5
+        static let countOFPaidConvertation: Int = 10
+        static let countOfNilConvertation: Int? = nil
+    }
 }
